@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Playwright
+test-results/
+playwright-report/

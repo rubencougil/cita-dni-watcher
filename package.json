@@ -1,0 +1,40 @@
+{
+  "name": "cita-dni-watcher",
+  "version": "1.0.0",
+  "description": "Script automatizado que monitorea la disponibilidad de citas para DNI en España y notifica a través de Telegram",
+  "main": "watch-cita-dni.js",
+  "scripts": {
+    "start": "node watch-cita-dni.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cita-dni",
+    "dni",
+    "españa",
+    "telegram",
+    "monitoreo",
+    "notificaciones",
+    "administraciones-públicas",
+    "playwright",
+    "automatización"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/cita-dni-watcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/cita-dni-watcher/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/cita-dni-watcher#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.15.0",
+    "dotenv": "^16.4.3",
+    "form-data": "^4.0.5",
+    "playwright": "^1.59.1"
+  }
+}
