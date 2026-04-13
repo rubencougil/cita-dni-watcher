@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
-  <title>🆔 Cita DNI Watcher</title>
+  <title>⏰ Cita DNI Watcher</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -13,10 +13,11 @@
       --text: #e6edf3;
       --muted: #8b949e;
       --accent: #58a6ff;
+      --accent-dim: rgba(88,166,255,.12);
       --green: #3fb950;
       --red: #f85149;
       --yellow: #d29922;
-      --code-bg: #1f2937;
+      --code-bg: #161b22;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,14 +42,24 @@
     /* HEADER */
     header {
       border-bottom: 1px solid var(--border);
-      padding: 48px 0 40px;
+      padding: 64px 0 48px;
+      position: relative;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -24px; right: -24px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #a371f7, var(--green));
+      border-radius: 0 0 4px 4px;
     }
 
     .badge-row {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .badge {
@@ -63,22 +74,27 @@
     .badge.blue  { border-color: var(--accent); color: var(--accent); }
 
     h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 12px;
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text) 60%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .subtitle {
       font-size: 1.15rem;
       color: var(--muted);
-      max-width: 620px;
+      max-width: 580px;
+      line-height: 1.7;
     }
 
     .cta-row {
       display: flex;
       gap: 12px;
-      margin-top: 28px;
+      margin-top: 32px;
       flex-wrap: wrap;
     }
 
@@ -86,69 +102,59 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 10px 22px;
+      border-radius: 8px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity .15s;
+      transition: opacity .15s, transform .1s;
     }
-    .btn:hover { opacity: .85; text-decoration: none; }
+    .btn:hover { opacity: .88; text-decoration: none; transform: translateY(-1px); }
     .btn-primary { background: var(--accent); color: #0d1117; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
 
     /* SECTIONS */
     section {
-      padding: 48px 0;
+      padding: 52px 0;
       border-bottom: 1px solid var(--border);
     }
     section:last-of-type { border-bottom: none; }
 
     h2 {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-
-    h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--muted);
-      margin: 24px 0 8px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      font-size: .8rem;
+      color: var(--text);
     }
 
     p { color: var(--muted); margin-bottom: 12px; }
     p strong { color: var(--text); }
 
     /* HOW IT WORKS */
-    .steps {
-      display: grid;
-      gap: 16px;
-      counter-reset: steps;
-    }
+    .steps { display: grid; gap: 12px; }
 
     .step {
       display: flex;
       gap: 16px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 18px 20px;
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color .2s;
     }
+    .step:hover { border-color: var(--accent); }
 
     .step-num {
       flex-shrink: 0;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      background: var(--accent);
-      color: #0d1117;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
       font-weight: 700;
       font-size: 13px;
       display: flex;
@@ -156,19 +162,19 @@
       justify-content: center;
     }
 
-    .step-body strong { color: var(--text); display: block; margin-bottom: 4px; }
-    .step-body span { color: var(--muted); font-size: .9rem; }
+    .step-body strong { color: var(--text); display: block; margin-bottom: 4px; font-size: .95rem; }
+    .step-body span { color: var(--muted); font-size: .88rem; }
 
     /* CODE BLOCKS */
     pre {
       background: var(--code-bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 18px 20px;
+      border-radius: 10px;
+      padding: 20px 22px;
       overflow-x: auto;
       font-size: 13.5px;
-      line-height: 1.7;
-      margin: 12px 0;
+      line-height: 1.8;
+      margin: 16px 0;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -180,11 +186,11 @@
     .key     { color: #79c0ff; }
     .val     { color: #a5d6ff; }
     .cmd     { color: var(--green); }
-    .dollar  { color: var(--muted); user-select: none; }
+    .dollar  { color: #484f58; user-select: none; }
 
     /* FOOTER */
     footer {
-      padding: 32px 0;
+      padding: 36px 0;
       color: var(--muted);
       font-size: 13px;
       display: flex;
@@ -192,38 +198,19 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
+      border-top: 1px solid var(--border);
     }
 
     /* MOBILE */
     @media (max-width: 600px) {
-      h1 { font-size: 1.8rem; }
-
+      h1 { font-size: 1.9rem; letter-spacing: -.5px; }
       .subtitle { font-size: 1rem; }
-
-      header { padding: 32px 0 28px; }
-
-      section { padding: 32px 0; }
-
-      .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 20px;
-        font-size: 15px;
-      }
-
-      pre {
-        font-size: 12px;
-        padding: 14px 16px;
-        border-radius: 6px;
-      }
-
+      header { padding: 40px 0 32px; }
+      section { padding: 36px 0; }
+      .btn { width: 100%; justify-content: center; padding: 13px 20px; font-size: 15px; }
+      pre { font-size: 12px; padding: 14px 16px; }
       .step { padding: 14px 16px; }
-
-      footer {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
+      footer { flex-direction: column; align-items: flex-start; gap: 6px; }
     }
   </style>
 </head>
@@ -238,7 +225,7 @@
       <span class="badge blue">Playwright</span>
       <span class="badge">Windows · macOS · Linux</span>
     </div>
-    <h1>🆔 Cita DNI Watcher</h1>
+    <h1>⏰ Cita DNI Watcher</h1>
     <p class="subtitle">
       Bot que monitoriza la disponibilidad de citas para el DNI en España y te avisa
       por Telegram en cuanto se libera un hueco — sin que tengas que estar pendiente de la página.
@@ -307,7 +294,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>🆔 Cita DNI Watcher — MIT License</span>
+    <span>⏰ Cita DNI Watcher — MIT License</span>
     <a href="https://github.com/rubencougil/cita-dni-watcher">github.com/rubencougil/cita-dni-watcher</a>
   </footer>
 
