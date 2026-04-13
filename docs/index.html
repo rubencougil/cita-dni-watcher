@@ -169,6 +169,7 @@
       font-size: 13.5px;
       line-height: 1.7;
       margin: 12px 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     code {
@@ -181,59 +182,6 @@
     .cmd     { color: var(--green); }
     .dollar  { color: var(--muted); user-select: none; }
 
-    /* VARS TABLE */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th {
-      text-align: left;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-    td {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--muted);
-      vertical-align: top;
-    }
-    td:first-child { color: var(--accent); font-family: monospace; font-size: 13px; }
-    td .required { color: var(--red); font-size: 11px; font-weight: 600; }
-    td .optional { color: var(--yellow); font-size: 11px; font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
-
-    /* FILTER EXAMPLES */
-    .examples {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    @media (max-width: 600px) { .examples { grid-template-columns: 1fr; } }
-
-    .example-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-    }
-    .example-card .label {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 8px;
-    }
-    .example-card.ok .label { color: var(--green); }
-    .example-card.no .label { color: var(--red); }
-    .example-card p { font-size: 13.5px; margin: 0; }
-
     /* FOOTER */
     footer {
       padding: 32px 0;
@@ -242,8 +190,40 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: gap;
+      flex-wrap: wrap;
       gap: 8px;
+    }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+
+      .subtitle { font-size: 1rem; }
+
+      header { padding: 32px 0 28px; }
+
+      section { padding: 32px 0; }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+
+      pre {
+        font-size: 12px;
+        padding: 14px 16px;
+        border-radius: 6px;
+      }
+
+      .step { padding: 14px 16px; }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
     }
   </style>
 </head>
