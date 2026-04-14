@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const { spawn } = require('child_process');
 const { chromium } = require('playwright');
 const readline = require('readline');
 
@@ -23,24 +22,6 @@ function prompt(question) {
 async function cleanup() {
   if (browser) await browser.close();
   process.exit(0);
-}
-
-// Evita que el sistema entre en reposo mientras el monitor está activo
-function preventSleep() {
-  const platform = process.platform;
-  if (platform === 'darwin') {
-    const caffeinate = spawn('caffeinate', ['-i'], { stdio: 'ignore' });
-    caffeinate.unref();
-    console.log('☕ Reposo del sistema desactivado (caffeinate).');
-    return caffeinate;
-  }
-  if (platform === 'win32') {
-    // En Windows usamos un timer periódico que mueve el estado del sistema
-    const timer = setInterval(() => {}, 30000);
-    console.log('☕ Reposo del sistema desactivado.');
-    return { kill: () => clearInterval(timer) };
-  }
-  return null;
 }
 
 // Manejo de diferentes señales de cierre para asegurar que el navegador se cierre siempre
@@ -71,8 +52,6 @@ function isNetworkError(msg) {
 }
 
 async function main() {
-  const sleepGuard = preventSleep();
-
   browser = await chromium.launch({ headless: false });
   const page = await (await browser.newContext()).newPage();
 
