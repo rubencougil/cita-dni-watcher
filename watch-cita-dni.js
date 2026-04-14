@@ -8,6 +8,7 @@ const { sendTelegramMessage, sendScreenshotToTelegram } = require('./telegram');
 const { parseAvailableMonths, isValidMonthForNotification } = require('./parser');
 
 let browser = null;
+let isCleaningUp = false;
 
 validateConfig();
 
@@ -19,24 +20,34 @@ function prompt(question) {
   }));
 }
 
-async function cleanup() {
-  if (browser) await browser.close();
+async function cleanup(message) {
+  if (isCleaningUp) return;
+  isCleaningUp = true;
+
+  console.log('\n🛑 Cerrando...');
+  if (message) await sendTelegramMessage(message);
+
+  try {
+    if (browser) {
+      await browser.close();
+      browser = null;
+    }
+  } catch (e) {
+    console.error('Error cerrando el navegador:', e.message);
+  }
+
   process.exit(0);
 }
 
 // Manejo de diferentes señales de cierre para asegurar que el navegador se cierre siempre
-process.on('SIGINT', async () => {
-  await sendTelegramMessage('🛑 Detenido por el usuario.');
-  await cleanup();
-});
-
-process.on('SIGTERM', async () => {
-  await sendTelegramMessage('🛑 Proceso finalizado por el sistema.');
-  await cleanup();
-});
-
-process.on('SIGBREAK', async () => {
-  await cleanup();
+process.on('SIGINT',  () => cleanup('🛑 Detenido por el usuario.'));
+process.on('SIGTERM', () => cleanup('🛑 Proceso finalizado por el sistema.'));
+process.on('SIGBREAK', () => cleanup());
+process.on('exit', () => {
+  // Último recurso: forzar cierre del browser si sigue abierto de forma síncrona
+  if (browser) {
+    try { browser.close(); } catch {}
+  }
 });
 
 const RETRY_WAIT_MS = 30000; // espera corta tras error de red antes de reintentar
@@ -151,6 +162,5 @@ async function main() {
 
 main().catch(async (e) => {
   console.error('💥 Crítico:', e.message);
-  await sendTelegramMessage('🚨 El monitor se ha detenido por un error grave. Reinícialo manualmente.');
-  await cleanup();
+  await cleanup('🚨 El monitor se ha detenido por un error grave. Reinícialo manualmente.');
 });
