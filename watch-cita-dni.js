@@ -51,6 +51,27 @@ function isNetworkError(msg) {
     || msg.includes('Timeout');
 }
 
+const INTERMEDIATE_TITLE = 'Sección de Unidad de Documentación';
+const INTERMEDIATE_WAIT_MS = 15000; // tiempo máximo esperando a que desaparezca la página intermedia
+
+async function waitForIntermediatePage(page) {
+  const title = await page.title();
+  if (!title.includes(INTERMEDIATE_TITLE)) return;
+
+  console.log('⏳ Página intermedia detectada, esperando redirección...');
+  try {
+    await page.waitForFunction(
+      (t) => !document.title.includes(t),
+      INTERMEDIATE_TITLE,
+      { timeout: INTERMEDIATE_WAIT_MS }
+    );
+    // Esperar a que la página de destino esté estable
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+  } catch {
+    console.warn('⚠️ La página intermedia tardó demasiado en redirigir.');
+  }
+}
+
 async function main() {
   browser = await chromium.launch({ headless: false });
   const page = await (await browser.newContext()).newPage();
@@ -71,6 +92,7 @@ async function main() {
     try {
       console.log(`🔄 Verificando cambios - ${new Date().toLocaleString()}`);
       await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
+      await waitForIntermediatePage(page);
 
       // Esperar a que la página se estabilice tras posibles redirecciones JS
       try {
@@ -88,6 +110,7 @@ async function main() {
       if (currentSnapshot !== previousSnapshot) {
         if (availableMonths && !isValidMonthForNotification(availableMonths)) {
           console.log(`⏭️ Ignorado: ${monthsText} posteriores a ${CONFIG.MAX_MONTH}`);
+          await sendTelegramMessage(`ℹ️ Citas detectadas en ${monthsText}, pero son posteriores a ${CONFIG.MAX_MONTH}. Seguiré vigilando.`);
           previousSnapshot = currentSnapshot;
           continue;
         }
