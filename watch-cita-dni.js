@@ -68,6 +68,11 @@ const HEARTBEAT_MESSAGES = [
   '🫡 Parte de situación: sin novedades. La página sigue igual de aburrida que antes. Seguimos en guardia.',
   '🕰️ Ha pasado una hora y las citas siguen sin aparecer. Esto es como esperar el AVE en Chamartín... paciencia.',
   '🤖 Confirmado: el script respira, la conexión funciona y las citas siguen sin existir. Todo en orden, nada que celebrar.',
+  '🔍 Una hora más de vigilancia sin novedades. La página sigue sin ofrecer citas disponibles.',
+  '⏳ Sin cambios en la última hora. El script sigue monitorizando con normalidad.',
+  '📡 Señal recibida, página revisada, citas: ninguna. Seguimos a la espera.',
+  '🌀 Todo tranquilo por aquí. Nada que reportar, pero seguimos atentos.',
+  '🗓️ Otra hora sin citas disponibles. El script continúa funcionando correctamente.',
 ];
 
 function getRandomHeartbeat() {
