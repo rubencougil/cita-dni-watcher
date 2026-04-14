@@ -64,19 +64,21 @@ const RETRY_WAIT_MS = 30000; // espera corta tras error de red antes de reintent
 const HEARTBEAT_INTERVAL_MS = 60 * 60 * 1000; // 1 hora
 
 const HEARTBEAT_MESSAGES = [
-  '👀 Sigo aquí, mirando la página como un halcón. Nada nuevo por el momento, pero no me rindo.',
-  '🫡 Parte de situación: sin novedades. La página sigue igual de aburrida que antes. Seguimos en guardia.',
-  '🕰️ Ha pasado una hora y las citas siguen sin aparecer. Esto es como esperar el AVE en Chamartín... paciencia.',
-  '🤖 Confirmado: el script respira, la conexión funciona y las citas siguen sin existir. Todo en orden, nada que celebrar.',
-  '🔍 Una hora más de vigilancia sin novedades. La página sigue sin ofrecer citas disponibles.',
-  '⏳ Sin cambios en la última hora. El script sigue monitorizando con normalidad.',
-  '📡 Señal recibida, página revisada, citas: ninguna. Seguimos a la espera.',
-  '🌀 Todo tranquilo por aquí. Nada que reportar, pero seguimos atentos.',
-  '🗓️ Otra hora sin citas disponibles. El script continúa funcionando correctamente.',
+  "👀 Sigo aquí, mirando la página como un halcón. Nada nuevo por el momento, pero no me rindo.",
+  "⏰ Parte de situación: sin novedades. La página sigue igual de aburrida que antes. Seguimos en guardia.",
+  "🕰️ Ha pasado una hora y las citas siguen sin aparecer. Esto es como esperar el AVE en Chamartín... paciencia.",
+  "🤖 Confirmado: el script respira, la conexión funciona y las citas siguen sin existir. Todo en orden, nada que celebrar.",
+  "🔍 Una hora más de vigilancia sin novedades. La página sigue sin ofrecer citas disponibles.",
+  "⏳ Sin cambios en la última hora. El script sigue monitorizando con normalidad.",
+  "📡 Señal recibida, página revisada, citas: ninguna. Seguimos a la espera.",
+  "🌀 Todo tranquilo por aquí. Nada que reportar, pero seguimos atentos.",
+  "🗓️ Otra hora sin citas disponibles. El script continúa funcionando correctamente.",
 ];
 
 function getRandomHeartbeat() {
-  return HEARTBEAT_MESSAGES[Math.floor(Math.random() * HEARTBEAT_MESSAGES.length)];
+  return HEARTBEAT_MESSAGES[
+    Math.floor(Math.random() * HEARTBEAT_MESSAGES.length)
+  ];
 }
 
 function isNetworkError(msg) {
@@ -96,15 +98,22 @@ const INTERMEDIATE_WAIT_MS = 20000;
 
 async function waitForIntermediatePage(page) {
   // La redirección puede ocurrir antes de llegar aquí — comprobamos el título con try/catch
-  let title = '';
-  try { title = await page.title(); } catch { return; }
+  let title = "";
+  try {
+    title = await page.title();
+  } catch {
+    return;
+  }
 
   if (!title.includes(INTERMEDIATE_TITLE)) return;
 
   console.log("⏳ Página intermedia detectada, esperando redirección...");
   try {
     // Esperamos a que la navegación a la página de citas se complete
-    await page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: INTERMEDIATE_WAIT_MS });
+    await page.waitForNavigation({
+      waitUntil: "domcontentloaded",
+      timeout: INTERMEDIATE_WAIT_MS,
+    });
     console.log("✅ Redirección completada.");
   } catch {
     console.warn("⚠️ La página intermedia tardó demasiado en redirigir.");
@@ -183,8 +192,12 @@ async function main() {
         lastHeartbeatTime = Date.now();
       } else {
         console.log("✅ Sin cambios.");
-        const minutesSinceHeartbeat = Math.floor((Date.now() - lastHeartbeatTime) / 60000);
-        console.log(`⏱️ Sin cambios. Último heartbeat hace ${minutesSinceHeartbeat} min.`);
+        const minutesSinceHeartbeat = Math.floor(
+          (Date.now() - lastHeartbeatTime) / 60000,
+        );
+        console.log(
+          `⏱️ Sin cambios. Último heartbeat hace ${minutesSinceHeartbeat} min.`,
+        );
         if (Date.now() - lastHeartbeatTime >= HEARTBEAT_INTERVAL_MS) {
           const msg = getRandomHeartbeat();
           console.log(`💬 Enviando heartbeat: ${msg}`);
