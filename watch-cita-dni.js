@@ -58,7 +58,7 @@ async function main() {
   while (true) {
     try {
       console.log(`🔄 Verificando cambios - ${new Date().toLocaleString()}`);
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
 
       // Esperar a que la página se estabilice tras posibles redirecciones JS
       try {
@@ -92,7 +92,8 @@ async function main() {
       }
     } catch (e) {
       const isNavigationError = e.message.includes('Execution context was destroyed')
-        || e.message.includes('navigation');
+        || e.message.includes('navigation')
+        || e.message.includes('Timeout');
 
       if (isNavigationError) {
         // Error transitorio por redirección de la página — se reintenta en el próximo ciclo
