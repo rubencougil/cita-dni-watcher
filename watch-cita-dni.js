@@ -75,21 +75,20 @@ function isNetworkError(msg) {
 }
 
 const INTERMEDIATE_TITLE = "Selección de Unidad de Documentación";
-const INTERMEDIATE_WAIT_MS = 15000; // tiempo máximo esperando a que desaparezca la página intermedia
+const INTERMEDIATE_WAIT_MS = 20000;
 
 async function waitForIntermediatePage(page) {
-  const title = await page.title();
+  // La redirección puede ocurrir antes de llegar aquí — comprobamos el título con try/catch
+  let title = '';
+  try { title = await page.title(); } catch { return; }
+
   if (!title.includes(INTERMEDIATE_TITLE)) return;
 
   console.log("⏳ Página intermedia detectada, esperando redirección...");
   try {
-    await page.waitForFunction(
-      (t) => !document.title.includes(t),
-      INTERMEDIATE_TITLE,
-      { timeout: INTERMEDIATE_WAIT_MS },
-    );
-    // Esperar a que la página de destino esté estable
-    await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
+    // Esperamos a que la navegación a la página de citas se complete
+    await page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: INTERMEDIATE_WAIT_MS });
+    console.log("✅ Redirección completada.");
   } catch {
     console.warn("⚠️ La página intermedia tardó demasiado en redirigir.");
   }
