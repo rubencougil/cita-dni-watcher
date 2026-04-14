@@ -1,5 +1,6 @@
-const path = require('path');            // Para manejo de rutas de archivos
+const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
 const { chromium } = require('playwright');
 const readline = require('readline');
 
@@ -24,6 +25,24 @@ async function cleanup() {
   process.exit(0);
 }
 
+// Evita que el sistema entre en reposo mientras el monitor está activo
+function preventSleep() {
+  const platform = process.platform;
+  if (platform === 'darwin') {
+    const caffeinate = spawn('caffeinate', ['-i'], { stdio: 'ignore' });
+    caffeinate.unref();
+    console.log('☕ Reposo del sistema desactivado (caffeinate).');
+    return caffeinate;
+  }
+  if (platform === 'win32') {
+    // En Windows usamos un timer periódico que mueve el estado del sistema
+    const timer = setInterval(() => {}, 30000);
+    console.log('☕ Reposo del sistema desactivado.');
+    return { kill: () => clearInterval(timer) };
+  }
+  return null;
+}
+
 // Manejo de diferentes señales de cierre para asegurar que el navegador se cierre siempre
 process.on('SIGINT', async () => {
   await sendTelegramMessage('🛑 Detenido por el usuario.');
@@ -39,7 +58,21 @@ process.on('SIGBREAK', async () => {
   await cleanup();
 });
 
+const RETRY_WAIT_MS = 30000; // espera corta tras error de red antes de reintentar
+
+function isNetworkError(msg) {
+  return msg.includes('ERR_TIMED_OUT')
+    || msg.includes('ERR_INTERNET_DISCONNECTED')
+    || msg.includes('ERR_NETWORK_CHANGED')
+    || msg.includes('net::ERR')
+    || msg.includes('Execution context was destroyed')
+    || msg.includes('navigation')
+    || msg.includes('Timeout');
+}
+
 async function main() {
+  const sleepGuard = preventSleep();
+
   browser = await chromium.launch({ headless: false });
   const page = await (await browser.newContext()).newPage();
 
@@ -49,7 +82,6 @@ async function main() {
   console.log('\n1) Login manual.\n2) Navega hasta la página de citas.\n3) Regresa aquí.');
   await prompt('\n⏳ Presiona ENTER para empezar...');
 
-  const initialUrl = page.url();
   let previousSnapshot = await page.evaluate(() => document.body.innerText.trim());
   let consecutiveErrors = 0;
 
@@ -92,26 +124,26 @@ async function main() {
       } else {
         console.log('✅ Sin cambios.');
       }
-    } catch (e) {
-      const isTransient = e.message.includes('Execution context was destroyed')
-        || e.message.includes('navigation')
-        || e.message.includes('Timeout');
 
+      await new Promise(r => setTimeout(r, CONFIG.CHECK_INTERVAL_MINUTES * 60000));
+    } catch (e) {
       consecutiveErrors++;
       console.error(`❌ Error (${consecutiveErrors}):`, e.message);
 
-      if (isTransient) {
-        console.warn('⚠️ Problema temporal de carga, se reintentará en el próximo ciclo.');
+      if (isNetworkError(e.message)) {
+        console.warn('⚠️ Problema de red o carga, reintentando en 30s...');
         if (consecutiveErrors >= 3) {
-          await sendTelegramMessage('⚠️ La página está tardando en cargar. Seguiré intentándolo.');
+          await sendTelegramMessage('⚠️ Llevo varios intentos sin poder cargar la página. Seguiré intentándolo.');
           consecutiveErrors = 0;
         }
+        // Reintento rápido en lugar de esperar el intervalo completo
+        await new Promise(r => setTimeout(r, RETRY_WAIT_MS));
       } else {
         await sendTelegramMessage('❌ Se ha producido un error inesperado en la monitorización. Comprueba que el proceso sigue activo.');
         consecutiveErrors = 0;
+        await new Promise(r => setTimeout(r, CONFIG.CHECK_INTERVAL_MINUTES * 60000));
       }
     }
-    await new Promise(r => setTimeout(r, CONFIG.CHECK_INTERVAL_MINUTES * 60000));
   }
 }
 
