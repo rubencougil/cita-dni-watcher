@@ -51,6 +51,7 @@ async function main() {
 
   const initialUrl = page.url();
   let previousSnapshot = await page.evaluate(() => document.body.innerText.trim());
+  let consecutiveErrors = 0;
 
   console.log(`✅ Monitorización iniciada (${CONFIG.CHECK_INTERVAL_MINUTES} min).`);
   await sendTelegramMessage('✅ Monitor de citas DNI iniciado correctamente.');
@@ -71,6 +72,7 @@ async function main() {
       const availableMonths = parseAvailableMonths(currentSnapshot);
       const monthsText = availableMonths ? availableMonths.map(m => m.name).join(', ') : 'Ninguno';
       console.log(`📅 Meses detectados: ${monthsText}`);
+      consecutiveErrors = 0;
 
       if (currentSnapshot !== previousSnapshot) {
         if (availableMonths && !isValidMonthForNotification(availableMonths)) {
@@ -91,16 +93,22 @@ async function main() {
         console.log('✅ Sin cambios.');
       }
     } catch (e) {
-      const isNavigationError = e.message.includes('Execution context was destroyed')
+      const isTransient = e.message.includes('Execution context was destroyed')
         || e.message.includes('navigation')
         || e.message.includes('Timeout');
 
-      if (isNavigationError) {
-        // Error transitorio por redirección de la página — se reintenta en el próximo ciclo
-        console.warn(`⚠️ Navegación en curso, se reintentará en el próximo ciclo.`);
+      consecutiveErrors++;
+      console.error(`❌ Error (${consecutiveErrors}):`, e.message);
+
+      if (isTransient) {
+        console.warn('⚠️ Problema temporal de carga, se reintentará en el próximo ciclo.');
+        if (consecutiveErrors >= 3) {
+          await sendTelegramMessage('⚠️ La página está tardando en cargar. Seguiré intentándolo.');
+          consecutiveErrors = 0;
+        }
       } else {
-        console.error('❌ Error:', e.message);
-        await sendTelegramMessage(`❌ Error: ${e.message}`);
+        await sendTelegramMessage('❌ Se ha producido un error inesperado en la monitorización. Comprueba que el proceso sigue activo.');
+        consecutiveErrors = 0;
       }
     }
     await new Promise(r => setTimeout(r, CONFIG.CHECK_INTERVAL_MINUTES * 60000));
@@ -109,6 +117,6 @@ async function main() {
 
 main().catch(async (e) => {
   console.error('💥 Crítico:', e.message);
-  await sendTelegramMessage(`💥 ERROR CRÍTICO: ${e.message}`);
+  await sendTelegramMessage('🚨 El monitor se ha detenido por un error grave. Reinícialo manualmente.');
   await cleanup();
 });
