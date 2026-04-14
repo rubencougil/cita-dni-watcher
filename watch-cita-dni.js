@@ -61,6 +61,18 @@ process.on("exit", () => {
 });
 
 const RETRY_WAIT_MS = 30000; // espera corta tras error de red antes de reintentar
+const HEARTBEAT_INTERVAL_MS = 60 * 60 * 1000; // 1 hora
+
+const HEARTBEAT_MESSAGES = [
+  '👀 Sigo aquí, mirando la página como un halcón. Nada nuevo por el momento, pero no me rindo.',
+  '🫡 Parte de situación: sin novedades. La página sigue igual de aburrida que antes. Seguimos en guardia.',
+  '🕰️ Ha pasado una hora y las citas siguen sin aparecer. Esto es como esperar el AVE en Chamartín... paciencia.',
+  '🤖 Confirmado: el script respira, la conexión funciona y las citas siguen sin existir. Todo en orden, nada que celebrar.',
+];
+
+function getRandomHeartbeat() {
+  return HEARTBEAT_MESSAGES[Math.floor(Math.random() * HEARTBEAT_MESSAGES.length)];
+}
 
 function isNetworkError(msg) {
   return (
@@ -110,6 +122,7 @@ async function main() {
     document.body.innerText.trim(),
   );
   let consecutiveErrors = 0;
+  let lastHeartbeatTime = Date.now();
 
   console.log(
     `✅ Monitorización iniciada (${CONFIG.CHECK_INTERVAL_MINUTES} min).`,
@@ -162,8 +175,13 @@ async function main() {
 
         setTimeout(() => fs.unlinkSync(screenshotPath), 2000);
         previousSnapshot = currentSnapshot;
+        lastHeartbeatTime = Date.now();
       } else {
         console.log("✅ Sin cambios.");
+        if (Date.now() - lastHeartbeatTime >= HEARTBEAT_INTERVAL_MS) {
+          await sendTelegramMessage(getRandomHeartbeat());
+          lastHeartbeatTime = Date.now();
+        }
       }
 
       await new Promise((r) =>
