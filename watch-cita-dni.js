@@ -183,8 +183,12 @@ async function main() {
         lastHeartbeatTime = Date.now();
       } else {
         console.log("✅ Sin cambios.");
+        const minutesSinceHeartbeat = Math.floor((Date.now() - lastHeartbeatTime) / 60000);
+        console.log(`⏱️ Sin cambios. Último heartbeat hace ${minutesSinceHeartbeat} min.`);
         if (Date.now() - lastHeartbeatTime >= HEARTBEAT_INTERVAL_MS) {
-          await sendTelegramMessage(getRandomHeartbeat());
+          const msg = getRandomHeartbeat();
+          console.log(`💬 Enviando heartbeat: ${msg}`);
+          await sendTelegramMessage(msg);
           lastHeartbeatTime = Date.now();
         }
       }
