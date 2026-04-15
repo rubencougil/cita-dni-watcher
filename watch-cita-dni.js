@@ -213,7 +213,11 @@ async function main() {
       consecutiveErrors++;
       console.error(`❌ Error (${consecutiveErrors}):`, e.message);
 
-      if (isNetworkError(e.message)) {
+      if (e.message.includes("ERR_NETWORK_IO_SUSPENDED")) {
+        await cleanup(
+          "📵 Conexión perdida, reinicia el script manualmente.",
+        );
+      } else if (isNetworkError(e.message)) {
         console.warn("⚠️ Problema de red o carga, reintentando en 30s...");
         if (consecutiveErrors >= 3) {
           await sendTelegramMessage(
