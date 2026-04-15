@@ -106,6 +106,18 @@ El script se ejecutará en modo headless: false por defecto, lo que significa qu
 
 **Nota**: Puedes detener el script en cualquier momento con Ctrl+C. El script cerrará el navegador y enviará una notificación de detención por Telegram antes de salir.
 
+### ⚠️ Aviso: suspensión del equipo y pérdida de conexión
+
+Si el equipo entra en modo de suspensión (sleep) o la red se interrumpe mientras el script está corriendo, puede producirse el error `ERR_NETWORK_IO_SUSPENDED`. En ese caso, **el script se detiene automáticamente** y envía el mensaje *"📵 Conexión perdida, reinicia el script manualmente."* por Telegram.
+
+Para evitarlo, se recomienda impedir que el equipo se duerma mientras el script está activo:
+
+- **macOS**: ejecuta el script con `caffeinate`:
+  ```bash
+  caffeinate -i node watch-cita-dni.js
+  ```
+- **Windows**: cambia temporalmente las opciones de energía a "Nunca suspender", o usa la app gratuita [Caffeine](https://www.zhornsoftware.co.uk/caffeine/).
+
 ## 💡 Ejemplos de uso
 
 ### Ejemplo 1: Notificación solo para citas en mayo o antes
